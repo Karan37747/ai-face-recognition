@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>FaceAttend — Sign In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+    :root{
+      --primary:#5b5ef4;--primary-l:#ededfe;
+      --text:#1a1d2e;--text2:#6b7280;--text3:#9ca3af;
+      --border:#e8eaf2;--surface:#ffffff;--bg:#f0f2f8;
+      --success:#10b981;--danger:#ef4444;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Inter',sans-serif;
+      background:var(--bg);
+      min-height:100vh;display:flex;
+    }
+
+    /* Left Panel */
+    .left-panel{
+      width:420px;flex-shrink:0;
+      background:var(--primary);
+      display:flex;flex-direction:column;
+      justify-content:space-between;
+      padding:40px;position:relative;overflow:hidden;
+    }
+    .left-panel::before{
+      content:'';position:absolute;
+      width:300px;height:300px;border-radius:50%;
+      background:rgba(255,255,255,0.06);
+      top:-80px;right:-80px;
+    }
+    .left-panel::after{
+      content:'';position:absolute;
+      width:200px;height:200px;border-radius:50%;
+      background:rgba(255,255,255,0.04);
+      bottom:60px;left:-60px;
+    }
+    .left-brand{display:flex;align-items:center;gap:12px;position:relative;z-index:1;}
+    .left-logo{
+      width:42px;height:42px;border-radius:12px;
+      background:rgba(255,255,255,0.2);
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;color:#fff;
+    }
+    .left-brand-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:700;color:#fff;}
+    .left-content{position:relative;z-index:1;}
+    .left-title{
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:32px;font-weight:800;color:#fff;
+      line-height:1.2;margin-bottom:16px;
+    }
+    .left-desc{font-size:14px;color:rgba(255,255,255,0.7);line-height:1.6;}
+    .left-stats{
+      display:flex;gap:20px;position:relative;z-index:1;
+    }
+    .left-stat{
+      background:rgba(255,255,255,0.12);
+      border-radius:12px;padding:14px 18px;flex:1;
+    }
+    .left-stat-value{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:700;color:#fff;}
+    .left-stat-label{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;}
+
+    /* Right Panel */
+    .right-panel{
+      flex:1;display:flex;align-items:center;justify-content:center;
+      padding:40px;
+    }
+    .login-box{width:100%;max-width:400px;}
+    .login-title{
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:24px;font-weight:700;color:var(--text);
+      margin-bottom:6px;
+    }
+    .login-sub{font-size:13.5px;color:var(--text3);margin-bottom:28px;}
+
+    /* Role tabs */
+    .role-tabs{
+      display:flex;gap:6px;margin-bottom:24px;
+      background:var(--bg);border-radius:11px;padding:4px;
+    }
+    .role-tab{
+      flex:1;text-align:center;padding:9px 6px;
+      border-radius:8px;font-size:12.5px;font-weight:500;
+      cursor:pointer;color:var(--text3);
+      transition:all .15s;border:none;background:transparent;
+    }
+    .role-tab i{display:block;font-size:17px;margin-bottom:3px;}
+    .role-tab.active{background:var(--surface);color:var(--primary);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+
+    /* Form */
+    .form-group{margin-bottom:16px;}
+    .form-label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+    .input-wrap{position:relative;}
+    .input-wrap i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:15px;pointer-events:none;}
+    .form-input{
+      width:100%;padding:10px 14px 10px 38px;
+      background:var(--bg);border:1.5px solid var(--border);
+      border-radius:10px;color:var(--text);font-size:13.5px;
+      font-family:'Inter',sans-serif;
+      transition:all .15s;outline:none;
+    }
+    .form-input:focus{border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 3px rgba(91,94,244,0.1);}
+    .form-input::placeholder{color:var(--text3);}
+
+    .btn-signin{
+      width:100%;padding:11px;border:none;border-radius:10px;
+      background:var(--primary);color:#fff;
+      font-weight:600;font-size:14px;cursor:pointer;
+      font-family:'Inter',sans-serif;
+      transition:all .15s;margin-top:4px;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .btn-signin:hover{background:#4a4dd4;transform:translateY(-1px);box-shadow:0 4px 16px rgba(91,94,244,0.3);}
+
+    .demo-box{
+      margin-top:20px;padding:12px 14px;
+      background:var(--bg);border:1px solid var(--border);
+      border-radius:10px;font-size:12px;color:var(--text3);
+    }
+    .demo-box strong{color:var(--text);font-family:'Inter',monospace;}
+
+    .alert{border-radius:10px;font-size:13px;border:none;margin-bottom:18px;}
+    .alert-danger{background:#fee2e2;color:#991b1b;}
+    .alert-success{background:#d1fae5;color:#065f46;}
+    .alert-info{background:var(--primary-l);color:#3730a3;}
+    .alert-warning{background:#fef3c7;color:#92400e;}
+
+    @media(max-width:768px){
+      .left-panel{display:none;}
+      .right-panel{padding:24px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- Left Panel -->
+<div class="left-panel">
+  <div class="left-brand">
+    <div class="left-logo"><i class="bi bi-camera-video-fill"></i></div>
+    <div class="left-brand-name">FaceAttend</div>
+  </div>
+
+  <div class="left-content">
+    <div class="left-title">Smart Attendance<br/>Made Simple</div>
+    <div class="left-desc">AI-powered face recognition that automatically marks attendance in real time — no manual work needed.</div>
+  </div>
+
+  <div class="left-stats">
+    <div class="left-stat">
+      <div class="left-stat-value">99%</div>
+      <div class="left-stat-label">Accuracy</div>
+    </div>
+    <div class="left-stat">
+      <div class="left-stat-value">&lt;1s</div>
+      <div class="left-stat-label">Detection</div>
+    </div>
+    <div class="left-stat">
+      <div class="left-stat-value">3</div>
+      <div class="left-stat-label">Roles</div>
+    </div>
+  </div>
+</div>
+
+<!-- Right Panel -->
+<div class="right-panel">
+  <div class="login-box">
+    <div class="login-title">Welcome back 👋</div>
+    <div class="login-sub">Sign in to your account to continue</div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat,msg in messages %}
+        <div class="alert alert-{{ cat }} alert-dismissible fade show">
+          {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endwith %}
+
+    <!-- Role Tabs -->
+    <div class="role-tabs">
+      <button class="role-tab" onclick="setRole('admin',this)">
+        <i class="bi bi-shield-check"></i>Admin
+      </button>
+      <button class="role-tab active" onclick="setRole('teacher',this)">
+        <i class="bi bi-person-video2"></i>Teacher
+      </button>
+      <button class="role-tab" onclick="setRole('student',this)">
+        <i class="bi bi-mortarboard"></i>Student
+      </button>
+    </div>
+
+    <form method="POST" action="/login">
+      <input type="hidden" name="role" id="roleInput" value="teacher"/>
+
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <div class="input-wrap">
+          <i class="bi bi-person"></i>
+          <input type="text" name="username" class="form-input" placeholder="Enter your username" required/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrap">
+          <i class="bi bi-lock"></i>
+          <input type="password" name="password" class="form-input" placeholder="Enter your password" required/>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-signin">
+        <i class="bi bi-arrow-right-circle"></i> Sign In
+      </button>
+    </form>
+
+    <div class="demo-box">
+      <i class="bi bi-info-circle me-1"></i>
+      Default admin: <strong>admin</strong> / <strong>admin123</strong>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function setRole(role,el){
+  document.getElementById('roleInput').value=role;
+  document.querySelectorAll('.role-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+document.querySelectorAll('.alert').forEach(a=>{
+  setTimeout(()=>{ try{bootstrap.Alert.getOrCreateInstance(a).close();}catch(e){} },4000);
+});
+</script>
+</body>
+</html>

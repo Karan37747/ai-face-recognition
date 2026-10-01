@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Students — FaceAttend{% endblock %}
+{% block body %}
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="bi bi-camera-video-fill"></i></div>
+    <div><div class="brand-name">FaceAttend</div><div class="brand-sub">Admin Panel</div></div>
+  </div>
+  <div class="nav-label">Main</div>
+  <ul class="sidebar-nav">
+    <li><a href="/admin"><i class="bi bi-grid-1x2"></i>Dashboard</a></li>
+    <li><a href="/admin/students" class="active"><i class="bi bi-people"></i>Students</a></li>
+    <li><a href="/admin/teachers"><i class="bi bi-person-video2"></i>Teachers</a></li>
+    <li><a href="/admin/subjects"><i class="bi bi-book"></i>Subjects</a></li>
+    <li><a href="/admin/attendance"><i class="bi bi-clipboard-data"></i>Attendance</a></li>
+    <li><a href="/admin/attendance/export"><i class="bi bi-download"></i>Export CSV</a></li>
+    <li><a href="/admin/train"><i class="bi bi-cpu"></i>Train AI Model</a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="user-avatar">{{ session.username[0]|upper }}</div>
+      <div><div class="user-name">{{ session.username }}</div><div class="user-role">Administrator</div></div>
+      <a href="/logout" class="logout-btn" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <div class="topbar">
+    <button class="sidebar-toggle btn btn-sm" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+    <div><div class="page-title">Students</div><div class="page-subtitle">Manage student records & face registration</div></div>
+    <a href="/admin/students/add" class="btn-primary-custom"><i class="bi bi-plus-lg"></i>Add Student</a>
+  </div>
+
+  <div class="content-area">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat,msg in messages %}
+        <div class="alert alert-{{ cat }} alert-dismissible fade show mb-3">{{ msg }}<button class="btn-close" data-bs-dismiss="alert"></button></div>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="mb-3 d-flex gap-2 align-items-center">
+      <input type="text" id="searchInput" class="form-control" placeholder="Search students…" style="max-width:300px"/>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table class="table table-borderless mb-0" id="studentsTable">
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Roll No.</th><th>Department</th><th>Semester</th><th>Face</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for s in students %}
+            <tr>
+              <td style="color:var(--text3)">{{ loop.index }}</td>
+              <td style="font-weight:500">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:32px;height:32px;border-radius:8px;background:var(--primary-l);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--primary);flex-shrink:0">{{ s.full_name[0]|upper }}</div>
+                  {{ s.full_name }}
+                </div>
+              </td>
+              <td style="color:var(--primary);font-weight:500;font-size:12.5px">{{ s.roll_number }}</td>
+              <td>{{ s.department or '—' }}</td>
+              <td>Sem {{ s.semester }}</td>
+              <td>
+                {% if s.face_encoded %}
+                  <span class="badge-present">✓ Registered</span>
+                {% else %}
+                  <span class="badge-absent">✗ Pending</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="d-flex gap-1">
+                  <a href="/admin/students/edit/{{ s.id }}" class="btn-ghost btn-sm" style="padding:5px 10px;font-size:12px" title="Edit"><i class="bi bi-pencil"></i></a>
+                  <a href="/admin/register_face/{{ s.id }}" class="btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;color:var(--success);border-color:var(--success)" title="Register Face" onclick="return confirm('Start webcam for face registration?')"><i class="bi bi-camera"></i></a>
+                  <a href="/admin/students/delete/{{ s.id }}" class="btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;color:var(--danger);border-color:var(--danger)" title="Delete" onclick="return confirm('Delete this student?')"><i class="bi bi-trash"></i></a>
+                </div>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center" style="color:var(--text3);padding:32px">No students found. <a href="/admin/students/add" style="color:var(--primary)">Add one</a></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.getElementById('searchInput').addEventListener('input',function(){
+  const q=this.value.toLowerCase();
+  document.querySelectorAll('#studentsTable tbody tr').forEach(r=>{
+    r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';
+  });
+});
+</script>
+{% endblock %}

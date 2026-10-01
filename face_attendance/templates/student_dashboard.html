@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% block title %}My Attendance — FaceAttend{% endblock %}
+{% block extra_css %}
+<style>
+.ring-wrap{position:relative;width:130px;height:130px;margin:0 auto 16px;}
+.ring-wrap svg{transform:rotate(-90deg);}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-pct{font-family:'Plus Jakarta Sans',sans-serif;font-size:26px;font-weight:700;color:var(--text);line-height:1;}
+.ring-lbl{font-size:11px;color:var(--text3);font-weight:500;}
+.subject-row{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;transition:background .1s;}
+.subject-row:last-child{border-bottom:none;}
+.subject-row:hover{background:var(--surface2);}
+</style>
+{% endblock %}
+
+{% block body %}
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="bi bi-camera-video-fill"></i></div>
+    <div><div class="brand-name">FaceAttend</div><div class="brand-sub">Student Portal</div></div>
+  </div>
+  <div class="nav-label">Navigation</div>
+  <ul class="sidebar-nav">
+    <li><a href="/student" class="active"><i class="bi bi-grid-1x2"></i>Dashboard</a></li>
+    <li><a href="/student/profile"><i class="bi bi-person-circle"></i>My Profile</a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="user-avatar">{{ student.full_name[0]|upper }}</div>
+      <div>
+        <div class="user-name">{{ student.full_name.split()[0] }}</div>
+        <div class="user-role">{{ student.roll_number }}</div>
+      </div>
+      <a href="/logout" class="logout-btn" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <div class="topbar">
+    <button class="sidebar-toggle btn btn-sm" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+    <div>
+      <div class="page-title">My Attendance</div>
+      <div class="page-subtitle">{{ student.department }} · Semester {{ student.semester }}</div>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <div class="row g-3 mb-3">
+      <!-- Overall Ring -->
+      <div class="col-md-4 col-lg-3">
+        <div class="card h-100 d-flex align-items-center justify-content-center p-4 text-center">
+          <div class="ring-wrap">
+            <svg width="130" height="130" viewBox="0 0 130 130">
+              <circle cx="65" cy="65" r="55" fill="none" stroke="var(--border)" stroke-width="10"/>
+              <circle cx="65" cy="65" r="55" fill="none"
+                stroke="{% if overall_percentage >= 75 %}var(--primary){% else %}var(--danger){% endif %}"
+                stroke-width="10"
+                stroke-dasharray="{{ (overall_percentage / 100 * 345.4)|round(1) }} 345.4"
+                stroke-linecap="round"/>
+            </svg>
+            <div class="ring-text">
+              <div class="ring-pct">{{ overall_percentage }}%</div>
+              <div class="ring-lbl">Overall</div>
+            </div>
+          </div>
+          <div style="font-weight:600;font-size:14px;color:var(--text)">Attendance Rate</div>
+          <div style="font-size:12px;margin-top:6px">
+            {% if overall_percentage >= 75 %}
+              <span style="color:var(--success)"><i class="bi bi-check-circle-fill me-1"></i>Good Standing</span>
+            {% else %}
+              <span style="color:var(--danger)"><i class="bi bi-exclamation-triangle-fill me-1"></i>Below 75%</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="col-md-8 col-lg-9">
+        <div class="row g-3 h-100">
+          <div class="col-sm-4">
+            <div class="stat-card stat-purple">
+              <div class="stat-icon"><i class="bi bi-book"></i></div>
+              <div class="stat-value">{{ subject_stats|length }}</div>
+              <div class="stat-label">Subjects Enrolled</div>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="stat-card stat-green">
+              <div class="stat-icon"><i class="bi bi-check2-circle"></i></div>
+              <div class="stat-value">{{ recent_attendance|selectattr('status','eq','present')|list|length }}</div>
+              <div class="stat-label">Present (Recent)</div>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="stat-card stat-orange">
+              <div class="stat-icon"><i class="bi bi-x-circle"></i></div>
+              <div class="stat-value">{{ recent_attendance|selectattr('status','eq','absent')|list|length }}</div>
+              <div class="stat-label">Absent (Recent)</div>
+            </div>
+          </div>
+
+          <!-- Face Status -->
+          <div class="col-12">
+            <div class="card" style="border-radius:12px">
+              <div class="card-body p-3 d-flex align-items-center gap-3">
+                <div style="width:42px;height:42px;border-radius:10px;background:{% if student.face_encoded %}var(--success-l){% else %}var(--warning-l){% endif %};display:flex;align-items:center;justify-content:center;font-size:18px;color:{% if student.face_encoded %}var(--success){% else %}var(--warning){% endif %};flex-shrink:0">
+                  <i class="bi bi-{% if student.face_encoded %}camera-video-fill{% else %}camera-video-off{% endif %}"></i>
+                </div>
+                <div>
+                  <div style="font-weight:600;font-size:13.5px;color:var(--text)">Face Recognition</div>
+                  <div style="font-size:12px;color:var(--text3)">
+                    {% if student.face_encoded %}
+                      <span style="color:var(--success)">✓ Registered — attendance is marked automatically</span>
+                    {% else %}
+                      <span style="color:var(--warning)">⚠ Not registered — contact your administrator</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <!-- Subject wise -->
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header"><i class="bi bi-book text-primary-custom"></i>Subject-wise Attendance</div>
+          {% for s in subject_stats %}
+          <div class="subject-row">
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:13.5px;color:var(--text)">{{ s.subject_name }}</div>
+              <div style="font-size:11px;color:var(--primary);font-weight:500">{{ s.subject_code }}</div>
+              <div class="progress mt-2" style="height:5px">
+                <div class="progress-bar" style="width:{{ s.percentage }}%;background:{% if s.percentage>=75 %}var(--primary){% else %}var(--danger){% endif %}"></div>
+              </div>
+            </div>
+            <div class="text-end" style="flex-shrink:0">
+              <div style="font-size:20px;font-weight:700;color:{% if s.percentage>=75 %}var(--primary){% else %}var(--danger){% endif %}">{{ s.percentage }}%</div>
+              <div style="font-size:11px;color:var(--text3)">{{ s.present_count }}/{{ s.total_classes }}</div>
+            </div>
+          </div>
+          {% else %}
+          <div class="text-center p-4" style="color:var(--text3)">No subject data available.</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Recent Log -->
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header"><i class="bi bi-clock-history text-primary-custom"></i>Recent Attendance Log</div>
+          <div style="max-height:380px;overflow-y:auto">
+            <table class="table table-borderless mb-0">
+              <thead style="position:sticky;top:0;background:var(--surface2)">
+                <tr>
+                  <th style="font-size:11px;color:var(--text3);padding:10px 16px;text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)">Subject</th>
+                  <th style="font-size:11px;color:var(--text3);padding:10px 16px;text-transform:uppercase;border-bottom:1px solid var(--border)">Date</th>
+                  <th style="font-size:11px;color:var(--text3);padding:10px 16px;text-transform:uppercase;border-bottom:1px solid var(--border)">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in recent_attendance %}
+                <tr style="border-bottom:1px solid var(--border)">
+                  <td style="padding:10px 16px;font-weight:500;color:var(--text);font-size:13px">{{ r.subject_name or '—' }}</td>
+                  <td style="padding:10px 16px;font-size:12px;color:var(--text3)">{{ r.date }}</td>
+                  <td style="padding:10px 16px"><span class="badge-{{ r.status }}">{{ r.status|title }}</span></td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3" class="text-center" style="color:var(--text3);padding:28px">No records yet.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if subject_stats %}
+    <!-- Charts -->
+    <div class="row g-3 mt-1">
+      <div class="col-lg-5">
+        <div class="card">
+          <div class="card-header"><i class="bi bi-pie-chart text-primary-custom"></i>Distribution</div>
+          <div class="card-body p-3 d-flex justify-content-center">
+            <canvas id="pieChart" style="max-height:200px"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-7">
+        <div class="card">
+          <div class="card-header"><i class="bi bi-bar-chart text-primary-custom"></i>Subject Comparison</div>
+          <div class="card-body p-3">
+            <canvas id="barChart" style="max-height:200px"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if subject_stats %}
+<script>
+const labels = {{ subject_stats|map(attribute='subject_name')|list|tojson }};
+const pcts   = {{ subject_stats|map(attribute='percentage')|list|tojson }};
+const colors = ['#5b5ef4','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316','#ec4899'];
+
+new Chart(document.getElementById('pieChart'), {
+  type: 'doughnut',
+  data: { labels, datasets: [{ data: pcts, backgroundColor: colors.slice(0,labels.length), borderWidth: 0 }] },
+  options: {
+    plugins: { legend: { labels: { color: '#6b7280', font: { family: 'Inter', size: 12 } } } },
+    cutout: '65%'
+  }
+});
+
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [
+      { label: 'Attendance %', data: pcts,
+        backgroundColor: pcts.map(p=>p>=75?'rgba(91,94,244,0.12)':'rgba(239,68,68,0.12)'),
+        borderColor: pcts.map(p=>p>=75?'#5b5ef4':'#ef4444'),
+        borderWidth: 2, borderRadius: 7 },
+      { label: '75% Target', data: Array(labels.length).fill(75),
+        type: 'line', borderColor: 'rgba(249,115,22,0.5)',
+        borderDash: [5,5], pointRadius: 0, fill: false }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { color: '#6b7280', font: { family: 'Inter', size: 11 } } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 11 } } },
+      y: { min: 0, max: 100, grid: { color: '#f0f2f8' }, ticks: { color: '#9ca3af', font: { size: 11 } } }
+    }
+  }
+});
+</script>
+{% endif %}
+{% endblock %}

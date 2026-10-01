@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Teacher Dashboard — FaceAttend{% endblock %}
+{% block body %}
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="bi bi-camera-video-fill"></i></div>
+    <div><div class="brand-name">FaceAttend</div><div class="brand-sub">Teacher Panel</div></div>
+  </div>
+  <div class="nav-label">Navigation</div>
+  <ul class="sidebar-nav">
+    <li><a href="/teacher" class="active"><i class="bi bi-grid-1x2"></i>Dashboard</a></li>
+    <li><a href="/teacher/attendance/view"><i class="bi bi-clipboard-data"></i>My Attendance</a></li>
+    <li><a href="/teacher/attendance/export"><i class="bi bi-download"></i>Export Report</a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="user-avatar">{{ teacher.full_name[0]|upper }}</div>
+      <div>
+        <div class="user-name">{{ teacher.full_name }}</div>
+        <div class="user-role">Teacher</div>
+      </div>
+      <a href="/logout" class="logout-btn" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <div class="topbar">
+    <button class="sidebar-toggle btn btn-sm" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+    <div>
+      <div class="page-title">Teacher Dashboard</div>
+      <div class="page-subtitle">{{ teacher.department }} · {{ teacher.employee_id }}</div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span class="dot-live"></span>
+      <span style="font-size:12px;color:var(--text3)">Live</span>
+    </div>
+  </div>
+
+  <div class="content-area">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat,msg in messages %}
+        <div class="alert alert-{{ cat }} alert-dismissible fade show mb-3">{{ msg }}<button class="btn-close" data-bs-dismiss="alert"></button></div>
+      {% endfor %}
+    {% endwith %}
+
+    <!-- Subjects -->
+    <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">My Subjects — Click to Start Attendance</div>
+    <div class="row g-3 mb-4">
+      {% for s in subjects %}
+      <div class="col-md-4 col-lg-3">
+        <div class="card h-100" style="transition:all .2s;cursor:pointer" onmouseover="this.style.boxShadow='0 4px 24px rgba(91,94,244,0.15)';this.style.borderColor='var(--primary)'" onmouseout="this.style.boxShadow='';this.style.borderColor='var(--border)'">
+          <div class="card-body p-4 text-center">
+            <div style="width:48px;height:48px;border-radius:12px;background:var(--primary-l);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:20px;color:var(--primary)">
+              <i class="bi bi-book-half"></i>
+            </div>
+            <div style="font-weight:600;font-size:14px;margin-bottom:4px;color:var(--text)">{{ s.subject_name }}</div>
+            <div style="font-size:11px;color:var(--primary);font-weight:500;margin-bottom:8px">{{ s.subject_code }}</div>
+            <div style="font-size:12px;color:var(--text3);margin-bottom:14px">{{ s.total_records }} records</div>
+            <a href="/teacher/attendance/start/{{ s.id }}" class="btn-primary-custom w-100 justify-content-center">
+              <i class="bi bi-camera-video"></i>Start
+            </a>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="col-12">
+        <div class="card"><div class="card-body text-center p-4" style="color:var(--text3)">
+          <i class="bi bi-book" style="font-size:28px;display:block;margin-bottom:8px;color:var(--border)"></i>
+          No subjects assigned. Contact admin.
+        </div></div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="row g-3">
+      <!-- Chart -->
+      <div class="col-lg-7">
+        <div class="card">
+          <div class="card-header"><i class="bi bi-bar-chart text-primary-custom"></i>My Attendance — Last 7 Days</div>
+          <div class="card-body p-3">
+            <canvas id="chart" height="120"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's Log -->
+      <div class="col-lg-5">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between">
+            <span><i class="bi bi-calendar-check text-primary-custom"></i>Today's Log</span>
+            <span class="badge-pill">{{ today_records|length }} present</span>
+          </div>
+          <div style="max-height:280px;overflow-y:auto">
+            <table class="table table-borderless mb-0">
+              <tbody>
+                {% for r in today_records %}
+                <tr style="border-bottom:1px solid var(--border)">
+                  <td style="padding:10px 16px;font-weight:500;color:var(--text)">{{ r.full_name }}</td>
+                  <td style="padding:10px 16px;color:var(--primary);font-size:12px;font-weight:500">{{ r.roll_number }}</td>
+                  <td style="padding:10px 16px"><span class="badge-{{ r.status }}">{{ r.status|title }}</span></td>
+                  <td style="padding:10px 16px;color:var(--text3);font-size:12px">{{ r.time_in }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="text-center" style="color:var(--text3);padding:28px">No attendance taken today</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+new Chart(document.getElementById('chart'), {
+  type: 'line',
+  data: {
+    labels: {{ chart_labels|safe }},
+    datasets: [{
+      label: 'Present',
+      data: {{ chart_counts|safe }},
+      borderColor: '#5b5ef4',
+      backgroundColor: 'rgba(91,94,244,0.08)',
+      fill: true, tension: 0.4,
+      pointBackgroundColor: '#5b5ef4',
+      pointRadius: 4, pointHoverRadius: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 12 } } },
+      y: { grid: { color: '#f0f2f8' }, ticks: { color: '#9ca3af', font: { size: 12 } }, beginAtZero: true }
+    }
+  }
+});
+</script>
+{% endblock %}

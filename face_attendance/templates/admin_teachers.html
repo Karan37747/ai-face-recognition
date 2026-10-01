@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Teachers — FaceAttend{% endblock %}
+{% block body %}
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="bi bi-camera-video-fill"></i></div>
+    <div><div class="brand-name">FaceAttend</div><div class="brand-sub">Admin Panel</div></div>
+  </div>
+  <div class="nav-label">Main</div>
+  <ul class="sidebar-nav">
+    <li><a href="/admin"><i class="bi bi-grid-1x2"></i>Dashboard</a></li>
+    <li><a href="/admin/students"><i class="bi bi-people"></i>Students</a></li>
+    <li><a href="/admin/teachers" class="active"><i class="bi bi-person-video2"></i>Teachers</a></li>
+    <li><a href="/admin/subjects"><i class="bi bi-book"></i>Subjects</a></li>
+    <li><a href="/admin/attendance"><i class="bi bi-clipboard-data"></i>Attendance</a></li>
+    <li><a href="/admin/attendance/export"><i class="bi bi-download"></i>Export CSV</a></li>
+    <li><a href="/admin/train"><i class="bi bi-cpu"></i>Train AI Model</a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="user-avatar">{{ session.username[0]|upper }}</div>
+      <div><div class="user-name">{{ session.username }}</div><div class="user-role">Administrator</div></div>
+      <a href="/logout" class="logout-btn" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+  </div>
+</aside>
+<div class="main-content">
+  <div class="topbar">
+    <button class="sidebar-toggle btn btn-sm" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+    <div><div class="page-title">Teachers</div><div class="page-subtitle">Manage teaching staff</div></div>
+    <a href="/admin/teachers/add" class="btn-primary-custom"><i class="bi bi-plus-lg"></i>Add Teacher</a>
+  </div>
+  <div class="content-area">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat,msg in messages %}
+        <div class="alert alert-{{ cat }} alert-dismissible fade show mb-3">{{ msg }}<button class="btn-close" data-bs-dismiss="alert"></button></div>
+      {% endfor %}
+    {% endwith %}
+    <div class="card">
+      <div class="table-wrap">
+        <table class="table table-borderless mb-0">
+          <thead><tr><th>#</th><th>Name</th><th>Employee ID</th><th>Department</th><th>Email</th><th>Phone</th><th>Actions</th></tr></thead>
+          <tbody>
+            {% for t in teachers %}
+            <tr>
+              <td style="color:var(--text3)">{{ loop.index }}</td>
+              <td style="font-weight:500">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:32px;height:32px;border-radius:8px;background:var(--primary-l);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--primary);flex-shrink:0">{{ t.full_name[0]|upper }}</div>
+                  {{ t.full_name }}
+                </div>
+              </td>
+              <td style="color:var(--primary);font-weight:500;font-size:12.5px">{{ t.employee_id }}</td>
+              <td>{{ t.department or '—' }}</td>
+              <td style="color:var(--text2)">{{ t.email or '—' }}</td>
+              <td style="color:var(--text2)">{{ t.phone or '—' }}</td>
+              <td><a href="/admin/teachers/delete/{{ t.id }}" class="btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;color:var(--danger);border-color:var(--danger)" onclick="return confirm('Delete this teacher?')"><i class="bi bi-trash"></i></a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center" style="color:var(--text3);padding:32px">No teachers. <a href="/admin/teachers/add" style="color:var(--primary)">Add one</a></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

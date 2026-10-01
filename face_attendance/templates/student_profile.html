@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}My Profile — FaceAttend{% endblock %}
+{% block body %}
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="bi bi-camera-video-fill"></i></div>
+    <div><div class="brand-name">FaceAttend</div><div class="brand-sub">Student Portal</div></div>
+  </div>
+  <div class="nav-label">Navigation</div>
+  <ul class="sidebar-nav">
+    <li><a href="/student"><i class="bi bi-grid-1x2"></i>Dashboard</a></li>
+    <li><a href="/student/profile" class="active"><i class="bi bi-person-circle"></i>My Profile</a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="user-avatar">{{ student.full_name[0]|upper }}</div>
+      <div><div class="user-name">{{ student.full_name.split()[0] }}</div><div class="user-role">{{ student.roll_number }}</div></div>
+      <a href="/logout" class="logout-btn" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <div class="topbar">
+    <button class="sidebar-toggle btn btn-sm" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+    <div><div class="page-title">My Profile</div><div class="page-subtitle">View and update your details</div></div>
+  </div>
+
+  <div class="content-area">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat,msg in messages %}
+        <div class="alert alert-{{ cat }} alert-dismissible fade show mb-3">{{ msg }}<button class="btn-close" data-bs-dismiss="alert"></button></div>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
+
+        <!-- Profile Card -->
+        <div class="card mb-3">
+          <div class="card-body p-4 text-center">
+            <div style="width:90px;height:90px;border-radius:20px;overflow:hidden;border:3px solid var(--primary);margin:0 auto 14px;box-shadow:0 0 0 4px var(--primary-l)">
+              {% if student.profile_image %}
+                <img src="/static/images/profiles/{{ student.profile_image }}" style="width:100%;height:100%;object-fit:cover" alt="Profile"/>
+              {% else %}
+                <div style="width:100%;height:100%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:#fff">
+                  {{ student.full_name[0]|upper }}
+                </div>
+              {% endif %}
+            </div>
+            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:700;color:var(--text)">{{ student.full_name }}</div>
+            <div style="color:var(--primary);font-size:13px;font-weight:500;margin-top:4px">{{ student.roll_number }}</div>
+            <div class="mt-3">
+              {% if student.face_encoded %}
+                <span class="badge-present"><i class="bi bi-camera-video-fill me-1"></i>Face Registered</span>
+              {% else %}
+                <span class="badge-late"><i class="bi bi-camera-video-off me-1"></i>Face Not Registered</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="card mb-3">
+          <div class="card-header"><i class="bi bi-info-circle text-primary-custom"></i>Personal Information</div>
+          <div class="card-body p-4">
+            <div class="row g-3">
+              {% set fields = [
+                ('Full Name', student.full_name, 'person'),
+                ('Roll Number', student.roll_number, 'hash'),
+                ('Department', student.department or '—', 'building'),
+                ('Semester', 'Semester ' ~ student.semester, 'mortarboard'),
+                ('Email', student.email or '—', 'envelope'),
+                ('Phone', student.phone or '—', 'telephone'),
+              ] %}
+              {% for label, value, icon in fields %}
+              <div class="col-md-6">
+                <div style="padding:12px 14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border)">
+                  <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:600">
+                    <i class="bi bi-{{ icon }} me-1"></i>{{ label }}
+                  </div>
+                  <div style="font-size:14px;font-weight:500;color:var(--text)">{{ value }}</div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload Photo -->
+        <div class="card">
+          <div class="card-header"><i class="bi bi-camera text-primary-custom"></i>Update Profile Photo</div>
+          <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data">
+              <label class="form-label">Choose Image (JPG / PNG)</label>
+              <input type="file" name="profile_image" class="form-control mb-3" accept="image/*"/>
+              <button type="submit" class="btn-primary-custom"><i class="bi bi-upload"></i>Upload Photo</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

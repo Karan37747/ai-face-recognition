@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Add Teacher — FaceAttend{% endblock %}
+{% block body %}
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="bi bi-camera-video-fill"></i></div>
+    <div><div class="brand-name">FaceAttend</div><div class="brand-sub">Admin Panel</div></div>
+  </div>
+  <div class="nav-label">Main</div>
+  <ul class="sidebar-nav">
+    <li><a href="/admin"><i class="bi bi-grid-1x2"></i>Dashboard</a></li>
+    <li><a href="/admin/students"><i class="bi bi-people"></i>Students</a></li>
+    <li><a href="/admin/teachers" class="active"><i class="bi bi-person-video2"></i>Teachers</a></li>
+    <li><a href="/admin/subjects"><i class="bi bi-book"></i>Subjects</a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="user-avatar">{{ session.username[0]|upper }}</div>
+      <div><div class="user-name">{{ session.username }}</div><div class="user-role">Administrator</div></div>
+      <a href="/logout" class="logout-btn" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+  </div>
+</aside>
+<div class="main-content">
+  <div class="topbar">
+    <button class="sidebar-toggle btn btn-sm" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+    <div><div class="page-title">Add Teacher</div></div>
+    <a href="/admin/teachers" class="btn-ghost"><i class="bi bi-arrow-left"></i>Back</a>
+  </div>
+  <div class="content-area">
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
+        <div class="card">
+          <div class="card-header"><i class="bi bi-person-badge text-primary-custom"></i>Teacher Information</div>
+          <div class="card-body p-4">
+            <form method="POST">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Full Name *</label>
+                  <input type="text" name="full_name" class="form-control" required placeholder="Dr. Smith"/>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Employee ID *</label>
+                  <input type="text" name="employee_id" class="form-control" required placeholder="EMP001"/>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Username *</label>
+                  <input type="text" name="username" class="form-control" required placeholder="dr.smith"/>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Password *</label>
+                  <input type="password" name="password" class="form-control" required/>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Email</label>
+                  <input type="email" name="email" class="form-control" placeholder="teacher@school.edu"/>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Phone</label>
+                  <input type="text" name="phone" class="form-control"/>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Department</label>
+                  <select name="department" class="form-select">
+                    <option value="">Select Department</option>
+                    <option>Computer Science</option>
+                    <option>Information Technology</option>
+                    <option>Electronics</option>
+                    <option>Mechanical</option>
+                    <option>Civil</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn-primary-custom"><i class="bi bi-check-lg"></i>Add Teacher</button>
+                <a href="/admin/teachers" class="btn-ghost">Cancel</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

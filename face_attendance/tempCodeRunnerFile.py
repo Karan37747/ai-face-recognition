@@ -1,0 +1,1 @@
+venv\Scripts\python.exe face_attendance\app.py

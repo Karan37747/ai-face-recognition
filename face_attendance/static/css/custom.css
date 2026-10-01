@@ -1,0 +1,111 @@
+/* FaceAttend v2 — Light Theme Custom CSS */
+
+/* Reset Bootstrap dark table defaults */
+.table {
+  --bs-table-bg: transparent !important;
+  --bs-table-color: var(--text) !important;
+  --bs-table-striped-bg: transparent !important;
+  --bs-table-hover-bg: var(--surface2) !important;
+  --bs-table-border-color: var(--border) !important;
+}
+
+/* Smooth page load */
+body { animation: fadeIn .2s ease; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+
+/* Modal backdrop */
+.modal-backdrop { backdrop-filter: blur(4px); }
+.modal-content { box-shadow: 0 20px 60px rgba(0,0,0,0.12); }
+
+/* Bootstrap btn-close fix */
+.btn-close { filter: none; }
+
+/* Form focus ring */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(91,94,244,0.1) !important;
+}
+
+/* Card hover */
+.card-lift {
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.card-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+}
+
+/* Tooltip */
+.tooltip-inner {
+  background: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  border-radius: 6px;
+}
+
+/* Alert close button */
+.alert .btn-close { opacity: .5; }
+.alert .btn-close:hover { opacity: 1; }
+
+/* Button sizes */
+.btn-sm { padding: 5px 10px !important; font-size: 12px !important; }
+
+/* Badge variants */
+.badge-face-ok {
+  background: var(--success-l);
+  color: var(--success);
+  border-radius: 99px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Progress bar animation */
+.progress-bar {
+  transition: width .6s ease;
+}
+
+/* Table row number */
+.row-num { color: var(--text3); font-size: 12px; }
+
+/* Sidebar active indicator */
+.sidebar-nav a.active {
+  position: relative;
+}
+.sidebar-nav a.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 18px;
+  background: var(--primary);
+  border-radius: 0 3px 3px 0;
+}
+
+/* Logout button */
+a[href="/logout"] {
+  color: var(--text3) !important;
+  text-decoration: none !important;
+}
+a[href="/logout"]:hover {
+  background: var(--danger-l) !important;
+  color: var(--danger) !important;
+  border-color: var(--danger) !important;
+}
+
+/* Chart canvas */
+canvas { border-radius: 8px; }
+
+/* Mobile responsive fixes */
+@media (max-width: 576px) {
+  .content-area { padding: 16px; }
+  .topbar { padding: 0 16px; }
+  .stat-value { font-size: 22px !important; }
+}

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Live Attendance — FaceAttend{% endblock %}
+{% block extra_css %}
+<style>
+  .camera-box{border-radius:14px;overflow:hidden;border:2px solid var(--primary);box-shadow:0 0 0 4px var(--primary-l);}
+  .camera-box img{width:100%;display:block;}
+  .live-tag{display:inline-flex;align-items:center;gap:6px;background:#ef4444;color:#fff;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.5px;}
+  .live-dot{width:7px;height:7px;background:#fff;border-radius:50%;animation:pulse 1s infinite;}
+  .student-entry{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);animation:slideIn .3s ease;}
+  @keyframes slideIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+  .s-avatar{width:36px;height:36px;border-radius:9px;background:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;}
+</style>
+{% endblock %}
+
+{% block body %}
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="bi bi-camera-video-fill"></i></div>
+    <div><div class="brand-name">FaceAttend</div><div class="brand-sub">Teacher Panel</div></div>
+  </div>
+  <div class="nav-label">Navigation</div>
+  <ul class="sidebar-nav">
+    <li><a href="/teacher"><i class="bi bi-grid-1x2"></i>Dashboard</a></li>
+    <li><a href="/teacher/attendance/view"><i class="bi bi-clipboard-data"></i>My Attendance</a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="user-avatar">T</div>
+      <div><div class="user-name">{{ session.username }}</div><div class="user-role">Teacher</div></div>
+      <a href="/logout" class="logout-btn" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <div class="topbar">
+    <button class="sidebar-toggle btn btn-sm" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+    <div>
+      <div class="page-title">Live Face Recognition</div>
+      <div class="page-subtitle">Subject ID: {{ subject_id }}</div>
+    </div>
+    <a href="/teacher" class="btn-ghost"><i class="bi bi-stop-circle"></i>Stop Session</a>
+  </div>
+
+  <div class="content-area">
+    <div class="row g-3">
+      <!-- Camera -->
+      <div class="col-lg-7">
+        <div class="card">
+          <div class="card-header d-flex align-items-center gap-2">
+            <span class="live-tag"><span class="live-dot"></span>LIVE</span>
+            Face Recognition Camera
+          </div>
+          <div class="card-body p-3">
+            <div class="camera-box">
+              <img src="/video_feed" alt="Live Camera"/>
+            </div>
+            <div class="mt-3 p-3" style="background:var(--primary-l);border-radius:10px;font-size:13px;color:var(--primary)">
+              <i class="bi bi-info-circle me-2"></i>
+              AI is scanning faces in real time. Recognized students are automatically marked <strong>Present</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recognized Panel -->
+      <div class="col-lg-5">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-person-check text-primary-custom"></i>Marked Present</span>
+            <span id="countBadge" class="badge-pill">0 students</span>
+          </div>
+          <div id="studentsLog" style="max-height:460px;overflow-y:auto">
+            <div id="emptyState" class="text-center" style="color:var(--text3);padding:48px 20px">
+              <i class="bi bi-camera-video" style="font-size:36px;display:block;margin-bottom:10px;color:var(--border)"></i>
+              Waiting for faces…
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const seen = new Set();
+async function poll(){
+  try{
+    const data = await (await fetch('/api/recognized_today')).json();
+    const log  = document.getElementById('studentsLog');
+    const empty = document.getElementById('emptyState');
+    data.forEach(s=>{
+      if(!seen.has(s.roll_number)){
+        seen.add(s.roll_number);
+        if(empty) empty.style.display='none';
+        const d = document.createElement('div');
+        d.className='student-entry';
+        d.innerHTML=`
+          <div class="s-avatar">${s.full_name.charAt(0)}</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:13.5px;color:var(--text)">${s.full_name}</div>
+            <div style="font-size:11px;color:var(--primary);font-weight:500">${s.roll_number}</div>
+          </div>
+          <div class="text-end">
+            <span class="badge-present">Present</span>
+            <div style="font-size:11px;color:var(--text3);margin-top:3px">${s.time_in||''}</div>
+          </div>`;
+        log.prepend(d);
+      }
+    });
+    document.getElementById('countBadge').textContent=seen.size+' student'+(seen.size!==1?'s':'');
+  }catch(e){}
+}
+setInterval(poll,3000);
+poll();
+</script>
+{% endblock %}
